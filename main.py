@@ -1,19 +1,20 @@
 
 # Importieren der Pygame-Bibliothek
-import pygame
+from pygame import *
 import random
 import os
 
-import Enemies
-from enemy_sprites import Rot
+from Enemies import *
+from Enemy_type import Rot
 """
 pygame.transform.scale(width,height)
 um die größe von den bildern zu ändern
 """
 
+# un commentaire 
 
 
-class TDgui():
+class TDgui(Enemy):
     def __init__(self):
 
         pygame.init()
@@ -22,41 +23,40 @@ class TDgui():
         self.screen = pygame.display.set_mode((self.displayWeite, self.displayHöhe))
 
 
-
+        self.Enemy=Enemy()
         self.health = 100
         self.money = 10000
         self.towers = []
         self.enemies = [Rot()]
         self.positions = []
-        self.background = pygame.image.load("Sprites/Hintergrund.png")
+        self.background = pygame.image.load("Sprites\Hintergrund.png")
         self.background = pygame.transform.scale(self.background,(self.displayWeite,self.displayHöhe))
+        
     def start(self):
         run = True
         clock = pygame.time.Clock()
         while run:
             clock.tick(30)
             self.screen.blit(self.background,(0,0))
-            self.movementtest.draw(self.screen)
+            self.Enemy.draw(self.screen)
             pygame.display.update()
+
             for event in pygame.event.get():
                 if event.type is pygame.QUIT:
                     run = False
-
-                position = pygame.mouse.get_pos()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.positions.append(position)
-                    print(self.positions)
             #durch gegener Loopen
             delEnemies = []
+
             for en in self.enemies:
-                if en.x < self.displayWeite +10:
+                en.move()
+                if en.x < self.displayWeite :
                     delEnemies.append(en)
+                else:
+                    en.draw(self.screen)
 
             #alle gegner nihct im screen löschen
             for d in delEnemies:
                 self.enemies.remove(d)
-
-            self.draw
 
         pygame.quit()
 
