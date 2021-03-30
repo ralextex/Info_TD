@@ -9,15 +9,14 @@ class Enemy():
         self.animation_count = 0
         self.health = 1
         self.vel = 3
+        self.img = 0
         self.path =[(126, 4), (128, 549), (574, 554), (581, 257), (794, 264)]
         self.x =  self.path[0][0]
         self.y =  self.path[0][1]
-        self.img = pygame.image.load(os.path.join("rot.png")).convert_alpha()
         self.dis = 0
         self.path_pos = 0
         self.move_count = 0
         self.move_dis = 0
-        self.imgs = []
         self.flipped = False
         self.max_health = 1
         self.speed_increase = 1.2
@@ -28,7 +27,6 @@ class Enemy():
         :param win: surface
         :return: None
         """
-        #self.img = self.imgs[self.animation_count]
         win.blit(self.img, ((self.x - self.img.get_width()/2), (self.y - self.img.get_height()/2 -35)))
         self.draw_health_bar(win)
 
@@ -62,10 +60,6 @@ class Enemy():
         Move enemy
         :return: None
         """
-        #self.animation_count += 1
-        #if self.animation_count >= len(self.imgs):
-        #    self.animation_count = 0
-
         x1, y1 = self.path[self.path_pos]
         if self.path_pos + 1 >= len(self.path):
             x2, y2 = (-10, 355)
