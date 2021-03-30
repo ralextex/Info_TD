@@ -6,13 +6,14 @@ class Enemy():
     def __init__(self):
         self.width = 64
         self.height = 64
-        self.animation_count = 0
+        
         self.health = 1
         self.vel = 3
         self.img = 0
         self.path =[(126, 4), (128, 549), (574, 554), (581, 257), (794, 264)]
-        self.x =  self.path[0][0]
-        self.y =  self.path[0][1]
+        self.x = self.path[0][0]
+        self.y = self.path[0][1]
+        
         self.dis = 0
         self.path_pos = 0
         self.move_count = 0
@@ -62,7 +63,7 @@ class Enemy():
         """
         x1, y1 = self.path[self.path_pos]
         if self.path_pos + 1 >= len(self.path):
-            x2, y2 = (-10, 355)
+            x2, y2 = (800, 265)
         else:
             x2, y2 = self.path[self.path_pos+1]
 
@@ -80,16 +81,16 @@ class Enemy():
         self.x = move_x
         self.y = move_y
 
-        # Go to next point
-        if dirn[0] >= 0: # moving right
-            if dirn[1] >= 0: # moving down
+        # zum Nächten Punkt
+        if dirn[0] >= 0: # Nach rechts bewegen
+            if dirn[1] >= 0: # Nach oben bewegen
                 if self.x >= x2 and self.y >= y2:
                     self.path_pos += 1
             else:
                 if self.x >= x2 and self.y <= y2:
                     self.path_pos += 1
-        else: # moving left
-            if dirn[1] >= 0:  # moving down
+        else: # Nach links bewegen
+            if dirn[1] >= 0:  # Nach unten bewegen
                 if self.x <= x2 and self.y >= y2:
                     self.path_pos += 1
             else:

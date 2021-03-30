@@ -48,8 +48,7 @@ class TDgui(Enemy):
             delEnemies = []
 
             for en in self.enemies:
-                en.move()
-                if en.x < self.displayWeite :
+                if en.x > self.displayWeite +10:
                     delEnemies.append(en)
                 else:
                     en.draw(self.screen)
