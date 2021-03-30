@@ -1,7 +1,7 @@
 
 # Importieren der Pygame-Bibliothek
 from pygame import *
-import random
+from random import randint
 import os
 
 from Enemies import *
@@ -23,11 +23,10 @@ class TDgui(Enemy):
         self.screen = pygame.display.set_mode((self.displayWeite, self.displayHöhe))
 
 
-        self.Enemy=Enemy()
         self.health = 100
         self.money = 10000
         self.towers = []
-        self.enemies = [Rot()]
+        self.enemies = []
         self.positions = []
         self.background = pygame.image.load("Sprites\Hintergrund.png")
         self.background = pygame.transform.scale(self.background,(self.displayWeite,self.displayHöhe))
@@ -38,24 +37,21 @@ class TDgui(Enemy):
         while run:
             clock.tick(30)
             self.screen.blit(self.background,(0,0))
-            self.Enemy.draw(self.screen)
-            pygame.display.update()
 
             for event in pygame.event.get():
                 if event.type is pygame.QUIT:
                     run = False
-            #durch gegener Loopen
-            delEnemies = []
-
+            for i in range (2):
+                self.enemies.append(Enemy(randint(1,800),randint(1,600)))
             for en in self.enemies:
-                if en.x > self.displayWeite +10:
-                    delEnemies.append(en)
+                if(en.alive):
+                    en.move()
+                    en.display(self.screen)
                 else:
-                    en.draw(self.screen)
+                    self.enemies.remove(en)
 
-            #alle gegner nihct im screen löschen
-            for d in delEnemies:
-                self.enemies.remove(d)
+
+            pygame.display.update()
 
         pygame.quit()
 

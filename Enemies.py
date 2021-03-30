@@ -3,108 +3,99 @@ import math
 import os
 
 class Enemy():
-    def __init__(self):
-        self.width = 64
-        self.height = 64
-        
-        self.health = 1
-        self.vel = 3
-        self.img = 0
-        self.path =[(126, 4), (128, 549), (574, 554), (581, 257), (794, 264)]
-        self.x = self.path[0][0]
-        self.y = self.path[0][1]
-        
-        self.dis = 0
-        self.path_pos = 0
-        self.move_count = 0
-        self.move_dis = 0
-        self.flipped = False
-        self.max_health = 1
-        self.speed_increase = 1.2
+    # def __init__(self):
+    #     self.size = 1000
+    #     self.speed = 3
+    #     self.img = pygame.image.load("sprites/rot.png")
+    #     self.path =[(126, 4), (128, 549), (574, 554), (581, 257), (794, 264)]
+    #     self.path_seg = 0
+    #     self.x = 400 #self.path[0][0]
+    #     self.y = 300 #self.path[0][1]
 
-    def draw(self, win):
+    def __init__(self,x,y):
+        self.alive = 1
+        self.size = 100
+        self.speed = 9
+        self.img = pygame.image.load("sprites/rot.png")
+        self.path =[(126, 4), (126, 549), (574, 549), (574, 257), (794, 257)]
+        self.path_seg = 0
+        self.x = x #self.path[0][0]
+        self.y = y #self.path[0][1]
+
+    def display(self, window):
         """
         Draws the enemy with the given images
         :param win: surface
         :return: None
         """
-        win.blit(self.img, ((self.x - self.img.get_width()/2), (self.y - self.img.get_height()/2 -35)))
-        self.draw_health_bar(win)
+        self.img = pygame.transform.scale(self.img, (self.size, self.size))
+        window.blit(self.img, ((self.x - self.img.get_width()/2), (self.y - self.img.get_height()/2 )))
+        #self.draw_health_bar(win)
 
-    def draw_health_bar(self, win):
-        """
-        draw health bar above enemy
-        :param win: surface
-        :return: None
-        """
-        length = 50
-        move_by = round(length / self.max_health)
-        health_bar = move_by * self.health
+    # def draw_health_bar(self, win):
+    #     """
+    #     #draw health bar above enemy
+    #     #:param win: surface
+    #     #:return: None
+    #     """
+    #     length = 50
+    #     move_by = round(length / self.max_health)
+    #     health_bar = move_by * self.health
 
-        pygame.draw.rect(win, (255,0,0), (self.x-30, self.y-75, length, 10), 0)
-        pygame.draw.rect(win, (0, 255, 0), (self.x-30, self.y - 75, health_bar, 10), 0)
-
-    def collide(self, X, Y):
-        """
-        Returns if position has hit enemy
-        :param x: int
-        :param y: int
-        :return: Bool
-        """
-        if X <= self.x + self.width and X >= self.x:
-            if Y <= self.y + self.height and Y >= self.y:
-                return True
-        return False
+    #     pygame.draw.rect(win, (255,0,0), (self.x-30, self.y-75, length, 10), 0)
+    #     pygame.draw.rect(win, (0, 255, 0), (self.x-30, self.y - 75, health_bar, 10), 0)
+    
+    # def collide(self, X, Y):
+    #     """
+    #     #Returns if position has hit enemy
+    #     #:param x: int
+    #     #:param y: int
+    #     #:return: Bool
+    #     """
+    #     if X <= self.x + self.width and X >= self.x:
+    #         if Y <= self.y + self.height and Y >= self.y:
+    #             return True
+    #     return False
 
     def move(self):
         """
         Move enemy
         :return: None
         """
-        x1, y1 = self.path[self.path_pos]
-        if self.path_pos + 1 >= len(self.path):
-            x2, y2 = (800, 265)
-        else:
-            x2, y2 = self.path[self.path_pos+1]
+        dir_x = self.path[self.path_seg][0] - self.x
+        if(dir_x < 0):
+            self.x -= self.speed
+        elif (dir_x > 0):
+            self.x += self.speed
 
-        dirn = ((x2-x1)*2, (y2-y1)*2)
-        length = math.sqrt((dirn[0])**2 + (dirn[1])**2)
-        dirn = (dirn[0]/length, dirn[1]/length)
+        dir_y = self.path[self.path_seg][1] - self.y
+        if(dir_y < 0):
+            self.y -= self.speed
+        elif (dir_y > 0):
+            self.y += self.speed
 
-        if dirn[0] < 0 and not(self.flipped):
-            self.flipped = True
-            for x, img in enumerate(self.imgs):
-                self.imgs[x] = pygame.transform.flip(img, True, False)
+        if(self.reached()):
+            self.x = self.path[self.path_seg-1][0]
+            self.y = self.path[self.path_seg-1][1]
 
-        move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-
-        self.x = move_x
-        self.y = move_y
-
-        # zum Nächten Punkt
-        if dirn[0] >= 0: # Nach rechts bewegen
-            if dirn[1] >= 0: # Nach oben bewegen
-                if self.x >= x2 and self.y >= y2:
-                    self.path_pos += 1
-            else:
-                if self.x >= x2 and self.y <= y2:
-                    self.path_pos += 1
-        else: # Nach links bewegen
-            if dirn[1] >= 0:  # Nach unten bewegen
-                if self.x <= x2 and self.y >= y2:
-                    self.path_pos += 1
-            else:
-                if self.x <= x2 and self.y >= y2:
-                    self.path_pos += 1
-
-    def hit(self, damage):
-        """
-        Returns if an enemy has died and removes one health
-        each call
-        :return: Bool
-        """
-        self.health -= damage
-        if self.health <= 0:
+    def reached(self):
+        if (abs(self.path[self.path_seg][0] - self.x)<self.speed and abs(self.path[self.path_seg][1] - self.y)<self.speed):
+            self.path_seg += 1
+            if(self.path_seg >= len(self.path)):
+                self.alive = 0
             return True
         else:
             return False
+
+
+    # def hit(self, damage):
+    #     """
+    #     #Returns if an enemy has died and removes one health
+    #     #each call
+    #     #:return: Bool
+    #     """
+    #     self.health -= damage
+    #     if self.health <= 0:
+    #         return True
+    #     else:
+    #         return False
