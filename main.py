@@ -49,7 +49,7 @@ class TDgui():
             #durch gegener Loopen
             delEnemies = []
             for en in self.enemies:
-                if en.x < self.displayWeite +10:
+                if en.x > self.displayWeite +10:
                     delEnemies.append(en)
 
             #alle gegner nihct im screen löschen
