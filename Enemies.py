@@ -1,6 +1,6 @@
 import pygame
 import math
-from enemy_sprites import Rot
+# from enemy_sprites import Rot
 
 class Enemy:
     imgs = []

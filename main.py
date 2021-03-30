@@ -60,5 +60,5 @@ class TDgui():
 
         pygame.quit()
 
-Spiel = TDgui(100,100)
+Spiel = TDgui()
 Spiel.start()
