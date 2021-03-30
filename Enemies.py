@@ -13,7 +13,7 @@ class Enemy:
         self.path =[(126, 4), (128, 549), (574, 554), (581, 257), (794, 264)]
         self.x = self.path[0][0]
         self.y = self.path[0][1]
-        self.img = pygame.image.load(os.path.join("game_assets/enemies/1", "1_enemies_1_run_000.png")).convert_alpha()
+        
         self.dis = 0
         self.path_pos = 0
         self.move_count = 0
