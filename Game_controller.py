@@ -26,9 +26,10 @@ class Game_controller(Enemy_controller):
 
         self.en_crtl = Enemy_controller(self.screen)
 
-        self.health = 100
+        self.health = 5
         self.money = 1000
         self.round = 1
+        self.alive = True
         self.round_alive = False
 
         self.background = pygame.image.load("sprites/Hintergrund.png")
@@ -37,16 +38,17 @@ class Game_controller(Enemy_controller):
         self.health_text = self.font.render(("Lives: %d" % self.health), False,(0, 0, 0) )
         self.money_text = self.font.render(("Money: %d" % self.money), False,(0, 0, 0) )
         self.round_text = self.font.render(("Round: %d" % self.round), False,(0, 0, 0) )
+        self.game_over_text = self.font.render(("You Lost at Round: %d" % self.round), False,(0, 0, 0) )
 
         self.buttons = []
         self.wave_button_id = 1
         self.tower_button_id = 2
+        self.restart_button_id = 3
 
 
     def display_static(self):
         self.screen.blit(self.background,(0,0))
         display_grid(self.screen, 10)
-        self.boutton = pygame.draw.rect(self.screen, (255, 0, 0), (630, 500, 160, 90))
         self.screen.blit(self.health_text,(0,0))
         self.screen.blit(self.money_text, (0,100))
         self.screen.blit(self.round_text, (0,200))
@@ -73,15 +75,37 @@ class Game_controller(Enemy_controller):
                         self.round_alive = True
                 if(button.id == self.tower_button_id):
                     print("THIS IS A TOWER")
+                if (button.id == self.restart_button_id):
+                    self.start()
+                    
     def blocking (self):
         #blocking between round to be updated
         while(not self.round_alive):
             self.event_handler()
             self.display_static()
-            pygame.display.update()       
+            pygame.display.update()  
+
+    def restart(self):
+        self.health = 5
+        self.money = 1000
+        self.round = 1
+        self.alive = True
+        self.round_alive = False
+        self.buttons[0].text = "NEW WAVE"
+        self.screen = pygame.display.set_mode((self.displayWeite, self.displayHöhe))
+
+
+    def game_end(self):  
+        self.screen.fill((255,0,0))
+        self.screen.blit(self.game_over_text,(150,200))
+        self.alive = False   
+        self.event_handler()
+        self.buttons[2].display_button(0)
+        
 
     def start(self):
-        run = True
+        self.restart()
+        
         nb_en = 0
         clock = pygame.time.Clock()
 
@@ -89,7 +113,7 @@ class Game_controller(Enemy_controller):
         self.buttons.append(Button(self.screen,300,400,160,90,'START',self.font,(170,170,0),self.wave_button_id))
         self.buttons.append(Button(self.screen,100,200,160,90,'TOWER',self.font,(0,170,170),self.tower_button_id))   
 
-        while run:
+        while self.alive:
             clock.tick(30)
             self.event_handler()
 
@@ -99,7 +123,7 @@ class Game_controller(Enemy_controller):
 
             self.blocking()
 
-            self.buttons[0].text = "NEW WAVE"
+
 
             while (self.round_alive):
                 self.display_static()
@@ -115,13 +139,18 @@ class Game_controller(Enemy_controller):
                     self.health -= en_state
                     self.health_text = self.font.render(("Lives: %d" % self.health), False,(0, 0, 0) )
                 self.clk += 1
+
+                if (self.health <= 0):
+                    self.buttons.append(Button(self.screen,100,200,160,90,'Restart',self.font,(0,170,170),self.restart_button_id))
+                    while True:
+                        self.game_end()
+                        pygame.display.update()
                 pygame.display.update()
+                
 
             self.round += 1
             self.round_text = self.font.render(("Round: %d" % self.round), False,(0, 0, 0) )
 
-    def loosing (self):
-        
     
 
 
