@@ -4,6 +4,7 @@ from random import randint
 import os
 
 from Enemy_controller import *
+from Button import *
 """
 pygame.transform.scale(width,height)
 um die größe von den bildern zu ändern
@@ -25,11 +26,10 @@ class Game_controller(Enemy_controller):
 
         self.en_crtl = Enemy_controller(self.screen)
 
-        
         self.health = 100
         self.money = 1000
         self.round = 1
-        self.round_alive = 1
+        self.round_alive = False
 
         self.background = pygame.image.load("sprites/Hintergrund.png")
         self.background = pygame.transform.scale(self.background,(800,self.displayHöhe))
@@ -38,36 +38,68 @@ class Game_controller(Enemy_controller):
         self.money_text = self.font.render(("Money: %d" % self.money), False,(0, 0, 0) )
         self.round_text = self.font.render(("Round: %d" % self.round), False,(0, 0, 0) )
 
+        self.buttons = []
+        self.wave_button_id = 1
+        self.tower_button_id = 2
+
 
     def display_static(self):
         self.screen.blit(self.background,(0,0))
         display_grid(self.screen, 10)
-        pygame.draw.rect(self.screen, (0, 0, 0), (630, 500, 160, 90))
+        self.boutton = pygame.draw.rect(self.screen, (255, 0, 0), (630, 500, 160, 90))
         self.screen.blit(self.health_text,(0,0))
         self.screen.blit(self.money_text, (0,100))
         self.screen.blit(self.round_text, (0,200))
+        for button in self.buttons:
+            button.display_button(button.mode)
 
     def event_handler(self):
+        for button in self.buttons:
+            button.highlight()
         for event in pygame.event.get():
             if event.type is pygame.QUIT:
                 pygame.quit()
-            #debug purpose only
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(pygame.mouse.get_pos())
+                self.button_handler()
+                
+        
+    def button_handler(self):
+        (mouse_x,mouse_y) = pygame.mouse.get_pos()
+        for button in self.buttons:
+            if(button.inside(mouse_x,mouse_y)):
+                if(button.id == self.wave_button_id):
+                    if(not self.round_alive):
+                        print("SEND NEW WAVE")
+                        self.round_alive = True
+                if(button.id == self.tower_button_id):
+                    print("THIS IS A TOWER")
+    def blocking (self):
+        #blocking between round to be updated
+        while(not self.round_alive):
+            self.event_handler()
+            self.display_static()
+            pygame.display.update()       
 
     def start(self):
         run = True
         nb_en = 0
         clock = pygame.time.Clock()
 
+        # wave button
+        self.buttons.append(Button(self.screen,300,400,160,90,'START',self.font,(170,170,0),self.wave_button_id))
+        self.buttons.append(Button(self.screen,100,200,160,90,'TOWER',self.font,(0,170,170),self.tower_button_id))   
+
         while run:
             clock.tick(30)
             self.event_handler()
 
             self.clk = 0
-            # self.round_alive = 1
 
             nb_en = self.round * 5
+
+            self.blocking()
+
+            self.buttons[0].text = "NEW WAVE"
 
             while (self.round_alive):
                 self.display_static()
@@ -77,17 +109,26 @@ class Game_controller(Enemy_controller):
                 
                 en_state = self.en_crtl.check_enemies()
                 if(en_state == -1):
-                    self.round_alive = 0
+                    self.round_alive = False
                     print("ROUND IS FINISHED")
                 else:
                     self.health -= en_state
                     self.health_text = self.font.render(("Lives: %d" % self.health), False,(0, 0, 0) )
-
                 self.clk += 1
                 pygame.display.update()
 
             self.round += 1
             self.round_text = self.font.render(("Round: %d" % self.round), False,(0, 0, 0) )
+
+    def loosing (self):
+        
+    
+
+
+
+
+
+
 
 def display_grid(screen, res):
     x = [i for i in range(screen.get_width()) if (i % res == 0)]

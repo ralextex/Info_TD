@@ -6,7 +6,7 @@ class Enemy():
     def __init__(self,x,y,path):
         self.alive = 1
         self.size = 100
-        self.speed = 3
+        self.speed =30
         self.img = pygame.image.load("sprites/rot.png")
         self.path = path
         self.path_seg = 0
