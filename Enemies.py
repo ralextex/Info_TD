@@ -3,21 +3,12 @@ import math
 import os
 
 class Enemy():
-    # def __init__(self):
-    #     self.size = 1000
-    #     self.speed = 3
-    #     self.img = pygame.image.load("sprites/rot.png")
-    #     self.path =[(126, 4), (128, 549), (574, 554), (581, 257), (794, 264)]
-    #     self.path_seg = 0
-    #     self.x = 400 #self.path[0][0]
-    #     self.y = 300 #self.path[0][1]
-
-    def __init__(self,x,y):
+    def __init__(self,x,y,path):
         self.alive = 1
         self.size = 100
-        self.speed = 9
+        self.speed = 3
         self.img = pygame.image.load("sprites/rot.png")
-        self.path =[(126, 4), (126, 549), (574, 549), (574, 257), (794, 257)]
+        self.path = path
         self.path_seg = 0
         self.x = x #self.path[0][0]
         self.y = y #self.path[0][1]
