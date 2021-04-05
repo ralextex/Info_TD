@@ -17,7 +17,7 @@ class Game_controller(Enemy_controller):
     def __init__(self):
         pygame.init()
         pygame.font.init()
-        self.font = pygame.font.SysFont("Arcade", 80)
+        self.font = pygame.font.SysFont("Arcade", 40)
         pygame.display.set_caption("tower defense")
         self.displayWeite,self.displayHöhe = 1000,600
         self.screen = pygame.display.set_mode((self.displayWeite, self.displayHöhe))
@@ -26,19 +26,18 @@ class Game_controller(Enemy_controller):
 
         self.en_crtl = Enemy_controller(self.screen)
 
-        self.health = 5
+        self.health = 25
         self.money = 1000
         self.round = 1
         self.alive = True
         self.round_alive = False
 
         self.background = pygame.image.load("sprites/Hintergrund.png")
-        self.background = pygame.transform.scale(self.background,(800,self.displayHöhe))
+        self.background = pygame.transform.scale(self.background,(self.displayWeite -200,self.displayHöhe))
 
-        self.health_text = self.font.render(("Lives: %d" % self.health), False,(0, 0, 0) )
-        self.money_text = self.font.render(("Money: %d" % self.money), False,(0, 0, 0) )
-        self.round_text = self.font.render(("Round: %d" % self.round), False,(0, 0, 0) )
-        self.game_over_text = self.font.render(("You Lost at Round: %d" % self.round), False,(0, 0, 0) )
+        self.health_text = self.font.render(("Lives: %d" % self.health), False,(255, 255, 255))
+        self.money_text = self.font.render(("Money: %d" % self.money), False,(255, 255, 255) )
+        self.round_text = self.font.render(("Round: %d" % self.round), False,(255, 255, 255) )
 
         self.buttons = []
         self.wave_button_id = 1
@@ -49,9 +48,9 @@ class Game_controller(Enemy_controller):
     def display_static(self):
         self.screen.blit(self.background,(0,0))
         display_grid(self.screen, 10)
-        self.screen.blit(self.health_text,(0,0))
-        self.screen.blit(self.money_text, (0,100))
-        self.screen.blit(self.round_text, (0,200))
+        self.screen.blit(self.health_text,(self.displayWeite -190,0))
+        self.screen.blit(self.money_text, (self.displayWeite -190,40))
+        self.screen.blit(self.round_text, (self.displayWeite -190,80))
         for button in self.buttons:
             button.display_button(button.mode)
 
@@ -86,18 +85,18 @@ class Game_controller(Enemy_controller):
             pygame.display.update()  
 
     def restart(self):
-        self.health = 5
+        self.health = 25
         self.money = 1000
         self.round = 1
         self.alive = True
         self.round_alive = False
-        self.buttons[0].text = "NEW WAVE"
         self.screen = pygame.display.set_mode((self.displayWeite, self.displayHöhe))
 
 
     def game_end(self):  
+        self.game_over_text = self.font.render(("You Lost at Round: %d" % self.round), False,(0, 0, 0) )
         self.screen.fill((255,0,0))
-        self.screen.blit(self.game_over_text,(150,200))
+        self.screen.blit(self.game_over_text,(200,200))
         self.alive = False   
         self.event_handler()
         self.buttons[2].display_button(0)
@@ -110,8 +109,8 @@ class Game_controller(Enemy_controller):
         clock = pygame.time.Clock()
 
         # wave button
-        self.buttons.append(Button(self.screen,300,400,160,90,'START',self.font,(170,170,0),self.wave_button_id))
-        self.buttons.append(Button(self.screen,100,200,160,90,'TOWER',self.font,(0,170,170),self.tower_button_id))   
+        self.buttons.append(Button(self.screen,self.displayWeite -190,500,180,90,'START',self.font,(170,170,0),self.wave_button_id))
+        self.buttons.append(Button(self.screen,self.displayWeite -190,400,180,90,'TOWER',self.font,(0,170,170),self.tower_button_id))   
 
         while self.alive:
             clock.tick(30)
@@ -126,9 +125,11 @@ class Game_controller(Enemy_controller):
 
 
             while (self.round_alive):
+
+                self.buttons[0].text = "NEW WAVE"
                 self.display_static()
                 self.event_handler()
-
+                
                 self.en_crtl.spawn(self.clk,nb_en,10)
                 
                 en_state = self.en_crtl.check_enemies()
@@ -137,11 +138,11 @@ class Game_controller(Enemy_controller):
                     print("ROUND IS FINISHED")
                 else:
                     self.health -= en_state
-                    self.health_text = self.font.render(("Lives: %d" % self.health), False,(0, 0, 0) )
+                    self.health_text = self.font.render(("Lives: %d" % self.health), False,(255, 255, 255) )
                 self.clk += 1
 
                 if (self.health <= 0):
-                    self.buttons.append(Button(self.screen,100,200,160,90,'Restart',self.font,(0,170,170),self.restart_button_id))
+                    self.buttons.append(Button(self.screen,100,400,700,90,'Restart',self.font,(0,170,170),self.restart_button_id))
                     while True:
                         self.game_end()
                         pygame.display.update()
@@ -149,7 +150,7 @@ class Game_controller(Enemy_controller):
                 
 
             self.round += 1
-            self.round_text = self.font.render(("Round: %d" % self.round), False,(0, 0, 0) )
+            self.round_text = self.font.render(("Round: %d" % self.round), False,(255, 255, 255) )
 
     
 
