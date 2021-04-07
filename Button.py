@@ -1,10 +1,13 @@
 import pygame
 import sys
 
-#define mode: 1 Light , 2 Dark
-
 class Button():
-    def __init__(self,screen,x,y,w,h,txt,font,col,id): 
+    def __init__(self,screen,x,y,w,h,txt,font,col,id):
+        """
+        Variablen
+        :param : surface, X-Koordinate, Y-Koordinate, Weite, Höhe, Text, Font, Farbe, ID
+        :return: None
+        """
         self.screen = screen
 
         self.id = id
@@ -23,6 +26,12 @@ class Button():
         self.text = txt
 
     def display_button(self,mode):
+        """
+        Zeigt die Buttons an
+        :param : Modus
+        :return: None
+        """
+
         if(mode == 1):
             pygame.draw.rect(self.screen,self.color_light,(self.x,self.y,self.w,self.h))
         elif(mode == 2):
@@ -31,16 +40,28 @@ class Button():
             pygame.draw.rect(self.screen,self.color,(self.x,self.y,self.w,self.h))
         self.screen.blit( self.font.render((self.text), False,(0, 0, 0) ),(self.x,self.y))
 
+    def inside(self,x,y):
+        """
+        Guckt ob die Maus in dem Button ist
+        :param : X-Koordinate, Y-Koordinate
+        :return: bool
+        """
+        if(self.x < x < self.x+self.w and self.y < y < self.y+self.h):
+            return True
+        else:
+            return False
+        
     def highlight(self):
+        """
+        Markiert den Button wenn Maus in Button
+        :return: None
+        """
+
         (mouse_x,mouse_y) = pygame.mouse.get_pos()
         if(self.inside(mouse_x,mouse_y)):
             self.mode = 1
         else:
             self.mode = 0
         
-    def inside(self,x,y):
-        if(self.x < x < self.x+self.w and self.y < y < self.y+self.h):
-            return True
-        else:
-            return False
+    
 

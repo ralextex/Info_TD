@@ -1,3 +1,5 @@
+#Programm zuständig für den Game controller und startet das Spiel
+
 from random import randint
 import os
 
