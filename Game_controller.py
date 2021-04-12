@@ -3,18 +3,15 @@ import pygame
 from random import randint
 import os
 
+#Andere Klassen werden importiert
 from Enemy_controller import *
 from Button import *
-"""
-pygame.transform.scale(width,height)
-um die größe von den bildern zu ändern
-"""
 
-# un commentaire 
-
-
+#Game controller controlliert das Spiel
 class Game_controller(Enemy_controller):
     def __init__(self):
+
+        #Screen wird erstellt
         pygame.init()
         pygame.font.init()
         self.font = pygame.font.SysFont("Arcade", 40)
@@ -23,22 +20,26 @@ class Game_controller(Enemy_controller):
         self.screen = pygame.display.set_mode((self.displayWeite, self.displayHöhe))
 
         self.clk = 0
-
+        #Enemy controller wird definiert
         self.en_crtl = Enemy_controller(self.screen)
 
+        #notwendige variablen werden erstellt
         self.health = 25
         self.money = 1000
         self.round = 1
         self.alive = True
         self.round_alive = False
 
+        #Background wird gezeichnet
         self.background = pygame.image.load("sprites/Hintergrund.png")
         self.background = pygame.transform.scale(self.background,(self.displayWeite -200,self.displayHöhe))
 
+        #Text wird erstellt
         self.health_text = self.font.render(("Lives: %d" % self.health), False,(255, 255, 255))
         self.money_text = self.font.render(("Money: %d" % self.money), False,(255, 255, 255) )
         self.round_text = self.font.render(("Round: %d" % self.round), False,(255, 255, 255) )
 
+        #Die variablen für die Buttons werden erstellt
         self.buttons = []
         self.wave_button_id = 1
         self.tower_button_id = 2
@@ -46,6 +47,10 @@ class Game_controller(Enemy_controller):
 
 
     def display_static(self):
+        """
+        Zuständig für das zeichnen der nicht veränderten sprites
+        :return: None
+        """
         self.screen.blit(self.background,(0,0))
         display_grid(self.screen, 10)
         self.screen.blit(self.health_text,(self.displayWeite -190,0))
@@ -55,6 +60,10 @@ class Game_controller(Enemy_controller):
             button.display_button(button.mode)
 
     def event_handler(self):
+        """
+        Zuständig für alle events
+        :return: None
+        """
         for button in self.buttons:
             button.highlight()
         for event in pygame.event.get():
@@ -65,6 +74,10 @@ class Game_controller(Enemy_controller):
                 
         
     def button_handler(self):
+        """
+        Zuständig für die Buttons 
+        :return: None
+        """
         (mouse_x,mouse_y) = pygame.mouse.get_pos()
         for button in self.buttons:
             if(button.inside(mouse_x,mouse_y)):
@@ -85,6 +98,10 @@ class Game_controller(Enemy_controller):
             pygame.display.update()  
 
     def restart(self):
+        """
+        Zuständig für das restarten des Spieles 
+        :return: None
+        """        
         self.health = 25
         self.money = 1000
         self.round = 1
@@ -94,6 +111,10 @@ class Game_controller(Enemy_controller):
 
 
     def game_end(self):  
+        """
+        Zuständig für das End screen 
+        :return: None
+        """     
         self.game_over_text = self.font.render(("You Lost at Round: %d" % self.round), False,(0, 0, 0) )
         self.screen.fill((255,0,0))
         self.screen.blit(self.game_over_text,(200,200))
@@ -103,12 +124,16 @@ class Game_controller(Enemy_controller):
         
 
     def start(self):
+        """
+        Zuständig für das starten des Programmes
+        :return: None
+        """        
         self.restart()
         
-        nb_en = 0
+        self.nb_en = 0
         clock = pygame.time.Clock()
 
-        # wave button
+        #Buttons werden ersttellt
         self.buttons.append(Button(self.screen,self.displayWeite -190,500,180,90,'START',self.font,(170,170,0),self.wave_button_id))
         self.buttons.append(Button(self.screen,self.displayWeite -190,400,180,90,'TOWER',self.font,(0,170,170),self.tower_button_id))   
 
@@ -122,14 +147,10 @@ class Game_controller(Enemy_controller):
 
             self.blocking()
 
-
-
             while (self.round_alive):
-
-                self.buttons[0].text = "NEW WAVE"
                 self.display_static()
                 self.event_handler()
-                
+
                 self.en_crtl.spawn(self.clk,nb_en,10)
                 
                 en_state = self.en_crtl.check_enemies()
@@ -138,20 +159,17 @@ class Game_controller(Enemy_controller):
                     print("ROUND IS FINISHED")
                 else:
                     self.health -= en_state
-                    self.health_text = self.font.render(("Lives: %d" % self.health), False,(255, 255, 255) )
+                    self.health_text = self.font.render(("Lives: %d" % self.health), False,(0, 0, 0) )
                 self.clk += 1
 
+                #verlieren des Spieles wird gemacht (to be updated )
                 if (self.health <= 0):
-                    self.buttons.append(Button(self.screen,100,400,700,90,'Restart',self.font,(0,170,170),self.restart_button_id))
+                    self.buttons.append(Button(self.screen,100,200,160,90,'Restart',self.font,(0,170,170),self.restart_button_id))
                     while True:
                         self.game_end()
                         pygame.display.update()
                 pygame.display.update()
                 
-
-            self.round += 1
-            self.round_text = self.font.render(("Round: %d" % self.round), False,(255, 255, 255) )
-
     
 
 
@@ -161,10 +179,17 @@ class Game_controller(Enemy_controller):
 
 
 def display_grid(screen, res):
+    """
+    Ein Gitter wird erstellt für eine bessere Übersicht
+    :parameter: Screen resolution
+    :return: None
+    """  
+    #X Linien werden gemacht    
     x = [i for i in range(screen.get_width()) if (i % res == 0)]
     for i in x:
         pygame.draw.line(screen,(255,255,255),(i,0),(i,screen.get_height()),1)
 
+    #Y Linien werden gemacht
     y = [i for i in range(screen.get_height()) if (i % res == 0)]
     for j in y:
         pygame.draw.line(screen,(255,255,255),(0,j),(screen.get_width(),j),1)
