@@ -11,12 +11,12 @@ class Enemy():
         """
         self.alive = 1
         self.size = 100
-        self.speed = 30
+        self.speed = 5
         self.img = pygame.image.load("sprites/rot.png")
         self.path = path
         self.path_seg = 0
-        self.x = x #self.path[0][0]
-        self.y = y #self.path[0][1]
+        self.x = x
+        self.y = y
 
     def display(self, window):
         """
@@ -26,21 +26,7 @@ class Enemy():
         """
         self.img = pygame.transform.scale(self.img, (self.size, self.size))
         window.blit(self.img, ((self.x - self.img.get_width()/2), (self.y - self.img.get_height()/2 )))
-        #self.draw_health_bar(win)
 
-    # def draw_health_bar(self, win):
-    #     """
-    #     #draw health bar above enemy
-    #     #:param win: surface
-    #     #:return: None
-    #     """
-    #     length = 50
-    #     move_by = round(length / self.max_health)
-    #     health_bar = move_by * self.health
-
-    #     pygame.draw.rect(win, (255,0,0), (self.x-30, self.y-75, length, 10), 0)
-    #     pygame.draw.rect(win, (0, 255, 0), (self.x-30, self.y - 75, health_bar, 10), 0)
-    
     # def collide(self, X, Y):
     #     """
     #     #Returns if position has hit enemy
@@ -88,16 +74,3 @@ class Enemy():
             return True
         else:
             return False
-
-
-    # def hit(self, damage):
-    #     """
-    #     #Returns if an enemy has died and removes one health
-    #     #each call
-    #     #:return: Bool
-    #     """
-    #     self.health -= damage
-    #     if self.health <= 0:
-    #         return True
-    #     else:
-    #         return False

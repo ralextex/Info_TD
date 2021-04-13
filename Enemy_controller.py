@@ -1,7 +1,7 @@
 from Enemies import Enemy
 
 #Kontrolliert und benutzt die Enemies
-class Enemy_controller(Enemy):
+class Enemy_controller():
     def __init__(self, screen):
         self.screen = screen
         self.enemies = []

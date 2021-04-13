@@ -6,22 +6,24 @@ import os
 #Andere Klassen werden importiert
 from Enemy_controller import *
 from Button import *
+from Tower_controller import *
 
 #Game controller controlliert das Spiel
-class Game_controller(Enemy_controller):
+class Game_controller():
     def __init__(self):
 
         #Screen wird erstellt
         pygame.init()
         pygame.font.init()
-        self.font = pygame.font.SysFont("Arcade", 40)
+        self.font = pygame.font.SysFont("Arial", 40)
         pygame.display.set_caption("tower defense")
         self.displayWeite,self.displayHöhe = 1000,600
         self.screen = pygame.display.set_mode((self.displayWeite, self.displayHöhe))
 
         self.clk = 0
-        #Enemy controller wird definiert
+        #Controller wird definiert
         self.en_crtl = Enemy_controller(self.screen)
+        self.tw_crtl = Tower_controller(self.screen, 100, 100)
 
         #notwendige variablen werden erstellt
         self.health = 25
@@ -29,6 +31,8 @@ class Game_controller(Enemy_controller):
         self.round = 1
         self.alive = True
         self.round_alive = False
+        self.tower_placement = False
+        self.mouse_down = False
 
         #Background wird gezeichnet
         self.background = pygame.image.load("sprites/Hintergrund.png")
@@ -71,6 +75,7 @@ class Game_controller(Enemy_controller):
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.button_handler()
+                self.mouse_down = True
                 
         
     def button_handler(self):
@@ -86,7 +91,7 @@ class Game_controller(Enemy_controller):
                         print("SEND NEW WAVE")
                         self.round_alive = True
                 if(button.id == self.tower_button_id):
-                    print("THIS IS A TOWER")
+                    self.tower_placement = True
                 if (button.id == self.restart_button_id):
                     self.start()
                     
@@ -96,6 +101,14 @@ class Game_controller(Enemy_controller):
             self.event_handler()
             self.display_static()
             pygame.display.update()  
+
+    def place_tower(self):
+        if self.tower_placement :
+            if self.mouse_down:
+                self.tw_crtl.display_tower()
+                pygame.display.update()
+
+
 
     def restart(self):
         """
@@ -144,14 +157,15 @@ class Game_controller(Enemy_controller):
             self.clk = 0
 
             nb_en = self.round * 5
-
             self.blocking()
 
             while (self.round_alive):
+                self.buttons[0].text="NEW WAVE"
                 self.display_static()
                 self.event_handler()
 
                 self.en_crtl.spawn(self.clk,nb_en,10)
+                self.place_tower()
                 
                 en_state = self.en_crtl.check_enemies()
                 if(en_state == -1):
@@ -159,7 +173,7 @@ class Game_controller(Enemy_controller):
                     print("ROUND IS FINISHED")
                 else:
                     self.health -= en_state
-                    self.health_text = self.font.render(("Lives: %d" % self.health), False,(0, 0, 0) )
+                    self.health_text = self.font.render(("Lives: %d" % self.health), False,(255, 255, 255) )
                 self.clk += 1
 
                 #verlieren des Spieles wird gemacht (to be updated )
@@ -168,11 +182,10 @@ class Game_controller(Enemy_controller):
                     while True:
                         self.game_end()
                         pygame.display.update()
-                pygame.display.update()
-                
+                pygame.display.update()        
+            self.round+=1 
+            self.round_text = self.font.render(("Round: %d" % self.round), False,(255, 255, 255) ) 
     
-
-
 
 
 
