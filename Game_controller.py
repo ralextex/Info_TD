@@ -23,7 +23,6 @@ class Game_controller():
         self.clk = 0
         #Controller wird definiert
         self.en_crtl = Enemy_controller(self.screen)
-        self.tw_crtl = Tower_controller(self.screen, 100, 100)
 
         #notwendige variablen werden erstellt
         self.health = 25
@@ -75,7 +74,8 @@ class Game_controller():
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.button_handler()
-                self.mouse_down = True
+                self.x_m, self.y_m = pygame.mouse.get_pos()
+                self.place_tower()
                 
         
     def button_handler(self):
@@ -98,15 +98,15 @@ class Game_controller():
     def blocking (self):
         #blocking between round to be updated
         while(not self.round_alive):
-            self.event_handler()
             self.display_static()
+            self.event_handler()
             pygame.display.update()  
 
     def place_tower(self):
+        self.tw_crtl = Tower_controller(self.screen, self.x_m, self.y_m)
         if self.tower_placement :
-            if self.mouse_down:
-                self.tw_crtl.display_tower()
-                pygame.display.update()
+            self.tw_crtl.display_tower()
+            pygame.display.update()
 
 
 
@@ -166,6 +166,7 @@ class Game_controller():
 
                 self.en_crtl.spawn(self.clk,nb_en,10)
                 self.place_tower()
+                self.tw_crtl.attack(self.en_crtl.enemies)
                 
                 en_state = self.en_crtl.check_enemies()
                 if(en_state == -1):

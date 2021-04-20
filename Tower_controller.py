@@ -5,11 +5,10 @@ class Tower_controller():
         self.screen = screen
         self.x = x
         self.y = y 
-        self.tower = Tower(500, 500)
+        self.tower = Tower(self.x, self.y)
     
     def display_tower(self):
         self.tower.draw(self.screen)
-        self.tower.draw_radius(self.screen)
         self.tower.draw_placement(self.screen)
 
     def collide(self, otherTower):
@@ -21,3 +20,6 @@ class Tower_controller():
             return False
         else:
             return True
+        
+    def attack(self, enemies):
+        self.tower.target(enemies)

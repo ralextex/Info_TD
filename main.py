@@ -1,4 +1,3 @@
-from random import randint
 import os
 
 from Game_controller import Game_controller

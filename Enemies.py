@@ -27,17 +27,17 @@ class Enemy():
         self.img = pygame.transform.scale(self.img, (self.size, self.size))
         window.blit(self.img, ((self.x - self.img.get_width()/2), (self.y - self.img.get_height()/2 )))
 
-    # def collide(self, X, Y):
-    #     """
-    #     #Returns if position has hit enemy
-    #     #:param x: int
-    #     #:param y: int
-    #     #:return: Bool
-    #     """
-    #     if X <= self.x + self.width and X >= self.x:
-    #         if Y <= self.y + self.height and Y >= self.y:
-    #             return True
-    #     return False
+    def collide(self, X, Y):
+        """
+        #Returns if position has hit enemy
+        #:param x: int
+        #:param y: int
+        #:return: Bool
+        """
+        if X <= self.x + self.width and X >= self.x:
+            if Y <= self.y + self.height and Y >= self.y:
+                return True
+        return False
 
     def move(self):
         """
@@ -74,3 +74,15 @@ class Enemy():
             return True
         else:
             return False
+
+
+    def hit(self):
+        """
+        Returns if an enemy has died and removes one health
+        each call
+        :return: Bool
+        """
+        self.health = 0
+        if self.health <= 0:
+            return True
+        return False

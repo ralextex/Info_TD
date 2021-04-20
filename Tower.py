@@ -9,11 +9,9 @@ class Tower():
         self.img = pygame.image.load("sprites/tower.png")
         self.width = 0
         self.height = 0
-        self.size =16
-        self.price = [0,0,0]
-        self.level = 1
-        self.selected = False
-        self.range = 100
+        self.size =32
+        self.inRange = False
+        self.range = 200
 
         self.place_color = (0,0,255, 100)
 
@@ -26,55 +24,36 @@ class Tower():
         self.img = pygame.transform.scale(self.img, (self.size, self.size))
         window.blit(self.img, ((self.x - self.img.get_width()/2), (self.y - self.img.get_height()/2 )))
     
-    def draw_radius(self,window):
-        if self.selected:
-            # draw range circle
-            surface = pygame.Surface((self.range * 4, self.range * 4), pygame.SRCALPHA, 32)
-            pygame.draw.circle(surface, (128, 128, 128, 100), (self.range, self.range), self.range, 0)
-
-            window.blit(surface, (self.x - self.range, self.y - self.range))
-
     def draw_placement(self,window):
         # draw range circle
         surface = pygame.Surface((self.range * 4, self.range * 4), pygame.SRCALPHA, 32)
-        pygame.draw.circle(surface, self.place_color, (50,50), 50, 0)
+        pygame.draw.circle(surface, self.place_color, (self.range, self.range), self.range, 0)
 
-        window.blit(surface, (self.x - 50, self.y - 50))
+        window.blit(surface, (self.x - self.range, self.y - self.range))
 
+    def target(self, enemies):
+        """
+        Greift Enemies an
+        :param enemies: list of enemies
+        :return: None
+        """
+        money = 0
+        self.inRange = False
+        enemy_closest = []
+        for enemy in enemies:
+            x = enemy.x
+            y = enemy.y
 
-    # def click(self, X, Y):
-    #     """
-    #     returns if tower has been clicked on
-    #     and selects tower if it was clicked
-    #     :param X: int
-    #     :param Y: int
-    #     :return: bool
-    #     """
-    #     img = self.tower_imgs[self.level - 1]
-    #     if X <= self.x - img.get_width()//2 + self.width and X >= self.x - img.get_width()//2:
-    #         if Y <= self.y + self.height - img.get_height()//2 and Y >= self.y - img.get_height()//2:
-    #             return True
-    #     return False
+            dis = math.sqrt((self.x - enemy.img.get_width()/2 - x)**2 + (self.y -enemy.img.get_height()/2 - y)**2)
+            if dis < self.range:
+                self.inRange = True
+                enemy_closest.append(enemy)
 
-    # def sell(self):
-    #     """
-    #     call to sell the tower, returns sell price
-    #     :return: int
-    #     """
-    #     return self.sell_price[self.level-1]
-
-    # def upgrade(self):
-    #     """
-    #     upgrades the tower for a given cost
-    #     :return: None
-    #     """
-    #     if self.level < len(self.tower_imgs):
-    #         self.level += 1
-    #         self.damage += 1
-
-    # def get_upgrade_cost(self):
-    #     """
-    #     returns the upgrade cost, if 0 then can't upgrade anymore
-    #     :return: int
-    #     """
-    #     return self.price[self.level-1]
+        enemy_closest.sort(key=lambda x: x.path[x.path_seg])
+        enemy_closest = enemy_closest[::-1]
+        if len(enemy_closest) > 0:
+            first_enemy = enemy_closest[0]
+            if first_enemy.hit() == True:
+                money += 1
+                enemies.remove(first_enemy)
+        return money
