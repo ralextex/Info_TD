@@ -24,8 +24,12 @@ class Tower():
         self.img = pygame.transform.scale(self.img, (self.size, self.size))
         window.blit(self.img, ((self.x - self.img.get_width()/2), (self.y - self.img.get_height()/2 )))
     
-    def draw_placement(self,window):
-        # draw range circle
+    def draw_radius(self,window):
+        """
+        Zeichnet den radius
+        :param win: surface
+        :return: None
+        """
         surface = pygame.Surface((self.range * 4, self.range * 4), pygame.SRCALPHA, 32)
         pygame.draw.circle(surface, self.place_color, (self.range, self.range), self.range, 0)
 

@@ -9,7 +9,7 @@ class Tower_controller():
     
     def display_tower(self):
         self.tower.draw(self.screen)
-        self.tower.draw_placement(self.screen)
+        self.tower.draw_radius(self.screen)
 
     def collide(self, otherTower):
         x2 = otherTower.x
