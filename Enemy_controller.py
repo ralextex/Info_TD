@@ -6,7 +6,8 @@ class Enemy_controller():
         self.screen = screen
         self.enemies = []
         self.enemies_spawned = 0
-        self.path = [(126, 4), (126, 549), (574, 549), (574, 257), (794, 257)]
+        self.spawning = False
+        self.path = [(126, 4), (126, 549), (574, 549), (574, 257), (805, 257)]
         
 
     def spawn(self,clk,to_spawn,rate):
@@ -17,8 +18,11 @@ class Enemy_controller():
         """
         if((clk % rate) == 0):
             if(self.enemies_spawned < to_spawn):
+                self.spawning = True
                 self.enemies_spawned += 1 
                 self.enemies.append(Enemy(126,4,self.path))
+            else:
+                self.spawning = False
 
         
     def check_enemies(self):
@@ -28,8 +32,11 @@ class Enemy_controller():
         """
         hp_lost = 0
         if(len(self.enemies) == 0):
-            self.enemies_spawned = 0
-            return -1
+            if (not self.spawning):
+                self.enemies_spawned = 0
+                return -1
+            else:
+                return 0
         else:
             for en in self.enemies:
                 if(en.alive):

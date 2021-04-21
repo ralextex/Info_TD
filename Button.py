@@ -1,10 +1,6 @@
 import pygame
 import sys
-
-#define mode: 1 Light , 2 Dark
-
-import pygame
-import sys
+from Rect import Rect
 
 class Button():
     def __init__(self,screen,x,y,w,h,txt,font,col,id):
@@ -21,6 +17,8 @@ class Button():
         self.y = y
         self.w = w
         self.h = h
+
+        self.rect = Rect(x,y,x+w,y+h)
 
         self.mode = 0
 
@@ -44,26 +42,14 @@ class Button():
         else:
             pygame.draw.rect(self.screen,self.color,(self.x,self.y,self.w,self.h))
         self.screen.blit( self.font.render((self.text), False,(0, 0, 0) ),(self.x,self.y))
-
-    def inside(self,x,y):
-        """
-        Guckt ob die Maus in dem Button ist
-        :param : X-Koordinate, Y-Koordinate
-        :return: bool
-        """
-        if(self.x < x < self.x+self.w and self.y < y < self.y+self.h):
-            return True
-        else:
-            return False
         
     def highlight(self):
         """
         Markiert den Button wenn Maus in Button
         :return: None
         """
-
         (mouse_x,mouse_y) = pygame.mouse.get_pos()
-        if(self.inside(mouse_x,mouse_y)):
+        if(self.rect.inside(mouse_x,mouse_y)):
             self.mode = 1
         else:
             self.mode = 0

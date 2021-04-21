@@ -23,10 +23,10 @@ class Game_controller():
         self.clk = 0
         #Controller wird definiert
         self.en_crtl = Enemy_controller(self.screen)
+        self.tw_crtl = Tower_controller(self.screen)
 
         #notwendige variablen werden erstellt
         self.health = 25
-        self.money = 1000
         self.round = 1
         self.alive = True
         self.round_alive = False
@@ -39,7 +39,7 @@ class Game_controller():
 
         #Text wird erstellt
         self.health_text = self.font.render(("Lives: %d" % self.health), False,(255, 255, 255))
-        self.money_text = self.font.render(("Money: %d" % self.money), False,(255, 255, 255) )
+        self.money_text = self.font.render(("Money: %d" % self.tw_crtl.money), False,(255, 255, 255) )
         self.round_text = self.font.render(("Round: %d" % self.round), False,(255, 255, 255) )
 
         #Die variablen für die Buttons werden erstellt
@@ -54,8 +54,9 @@ class Game_controller():
         Zuständig für das zeichnen der nicht veränderten sprites
         :return: None
         """
+        self.screen.fill((0,0,0))
         self.screen.blit(self.background,(0,0))
-        display_grid(self.screen, 10)
+        # display_grid(self.screen, 10)
         self.screen.blit(self.health_text,(self.displayWeite -190,0))
         self.screen.blit(self.money_text, (self.displayWeite -190,40))
         self.screen.blit(self.round_text, (self.displayWeite -190,80))
@@ -69,13 +70,19 @@ class Game_controller():
         """
         for button in self.buttons:
             button.highlight()
+        for tower in self.tw_crtl.towers:
+            tower.highlight()
         for event in pygame.event.get():
             if event.type is pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self.button_handler()
                 self.x_m, self.y_m = pygame.mouse.get_pos()
-                self.place_tower()
+                self.button_handler()
+                if(self.tower_placement):
+                    ret = self.tw_crtl.add_tower(self.x_m, self.y_m)
+                    if(ret):
+                        self.tower_placement = False
+                    
                 
         
     def button_handler(self):
@@ -85,7 +92,7 @@ class Game_controller():
         """
         (mouse_x,mouse_y) = pygame.mouse.get_pos()
         for button in self.buttons:
-            if(button.inside(mouse_x,mouse_y)):
+            if(button.rect.inside(mouse_x,mouse_y)):
                 if(button.id == self.wave_button_id):
                     if(not self.round_alive):
                         print("SEND NEW WAVE")
@@ -96,32 +103,12 @@ class Game_controller():
                     self.start()
                     
     def blocking (self):
-        #blocking between round to be updated
         while(not self.round_alive):
+            self.money_text = self.font.render(("Money: %d" % self.tw_crtl.money), False,(255, 255, 255) )
             self.display_static()
+            self.tw_crtl.display_towers()
             self.event_handler()
             pygame.display.update()  
-
-    def place_tower(self):
-        self.tw_crtl = Tower_controller(self.screen, self.x_m, self.y_m)
-        if self.tower_placement :
-            self.tw_crtl.display_tower()
-            pygame.display.update()
-
-
-
-    def restart(self):
-        """
-        Zuständig für das restarten des Spieles 
-        :return: None
-        """        
-        self.health = 25
-        self.money = 1000
-        self.round = 1
-        self.alive = True
-        self.round_alive = False
-        self.screen = pygame.display.set_mode((self.displayWeite, self.displayHöhe))
-
 
     def game_end(self):  
         """
@@ -131,9 +118,10 @@ class Game_controller():
         self.game_over_text = self.font.render(("You Lost at Round: %d" % self.round), False,(0, 0, 0) )
         self.screen.fill((255,0,0))
         self.screen.blit(self.game_over_text,(200,200))
-        self.alive = False   
+        for button in self.buttons:
+            button.display_button(button.mode)
         self.event_handler()
-        self.buttons[2].display_button(0)
+        
         
 
     def start(self):
@@ -141,34 +129,57 @@ class Game_controller():
         Zuständig für das starten des Programmes
         :return: None
         """        
-        self.restart()
-        
-        self.nb_en = 0
         clock = pygame.time.Clock()
 
+        self.nb_en = 0        
+        self.health = 25
+        self.round = 1
+        self.alive = True
+        self.round_alive = False
+        self.screen = pygame.display.set_mode((self.displayWeite, self.displayHöhe))
+        self.en_crtl = Enemy_controller(self.screen)
+        self.tw_crtl = Tower_controller(self.screen)
+        
+        for button in self.buttons:
+            if(button.id == self.restart_button_id):
+                self.buttons.remove(button)
+        
         #Buttons werden ersttellt
-        self.buttons.append(Button(self.screen,self.displayWeite -190,500,180,90,'START',self.font,(170,170,0),self.wave_button_id))
-        self.buttons.append(Button(self.screen,self.displayWeite -190,400,180,90,'TOWER',self.font,(0,170,170),self.tower_button_id))   
+        self.buttons.append(Button(self.screen,self.displayWeite -190,500,180,90,"NEW WAVE",self.font,(170,170,0),self.wave_button_id))
+        self.buttons.append(Button(self.screen,self.displayWeite -190,400,180,90,'TOWER',self.font,(0,170,170),self.tower_button_id))  
+
+        self.screen.blit(self.health_text,(self.displayWeite -190,0))
+        self.screen.blit(self.money_text, (self.displayWeite -190,40))
+        self.screen.blit(self.round_text, (self.displayWeite -190,80))
+
+        pygame.display.update()
 
         while self.alive:
             clock.tick(30)
             self.event_handler()
 
             self.clk = 0
+            self.tw_crtl.round_ready()
 
-            nb_en = self.round * 5
+            nb_en = int(5 * 1.5 ** self.round )
+        
             self.blocking()
 
             while (self.round_alive):
-                self.buttons[0].text="NEW WAVE"
+                clock.tick(30)
+
                 self.display_static()
                 self.event_handler()
 
                 self.en_crtl.spawn(self.clk,nb_en,10)
-                self.place_tower()
-                self.tw_crtl.attack(self.en_crtl.enemies)
-                
+                               
                 en_state = self.en_crtl.check_enemies()
+                self.tw_crtl.display_towers()
+
+                self.tw_crtl.attack(self.clk, self.en_crtl.enemies) 
+
+                self.money_text = self.font.render(("Money: %d" % self.tw_crtl.money), False,(255, 255, 255) )
+
                 if(en_state == -1):
                     self.round_alive = False
                     print("ROUND IS FINISHED")
@@ -177,12 +188,17 @@ class Game_controller():
                     self.health_text = self.font.render(("Lives: %d" % self.health), False,(255, 255, 255) )
                 self.clk += 1
 
-                #verlieren des Spieles wird gemacht (to be updated )
+                #verlieren des Spieles wird gemacht
                 if (self.health <= 0):
-                    self.buttons.append(Button(self.screen,100,200,160,90,'Restart',self.font,(0,170,170),self.restart_button_id))
+                    self.buttons = []
+                    self.alive = False
+                    self.tower_placement = False
+                    self.buttons.append(Button(self.screen,100,350,500,100,'Restart',self.font,(0,170,170),self.restart_button_id))
+                    
                     while True:
                         self.game_end()
                         pygame.display.update()
+
                 pygame.display.update()        
             self.round+=1 
             self.round_text = self.font.render(("Round: %d" % self.round), False,(255, 255, 255) ) 
@@ -202,9 +218,7 @@ def display_grid(screen, res):
     x = [i for i in range(screen.get_width()) if (i % res == 0)]
     for i in x:
         pygame.draw.line(screen,(255,255,255),(i,0),(i,screen.get_height()),1)
-
     #Y Linien werden gemacht
     y = [i for i in range(screen.get_height()) if (i % res == 0)]
     for j in y:
         pygame.draw.line(screen,(255,255,255),(0,j),(screen.get_width(),j),1)
-
